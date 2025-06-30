@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS - AI Personal Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #0f0f23 100%);
+            color: #00d4ff;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0px); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00d4ff, #0099cc, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.6)); }
+        }
+
+        .status {
+            font-size: 1.1em;
+            opacity: 0.8;
+            color: #00ff88;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            scrollbar-width: thin;
+            scrollbar-color: #00d4ff transparent;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #00d4ff;
+            border-radius: 4px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 20px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #00d4ff20, #0099cc20);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .ai-message {
+            background: linear-gradient(135deg, #00ff8820, #00cc7020);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            margin-right: auto;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 25px;
+            color: #00d4ff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .input-field::placeholder {
+            color: rgba(0, 212, 255, 0.5);
+        }
+
+        .btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.recording {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 71, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+
+        .voice-visualizer {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .voice-bar {
+            width: 4px;
+            height: 20px;
+            background: #00d4ff;
+            border-radius: 2px;
+            animation: voiceAnimation 1s ease-in-out infinite;
+        }
+
+        .voice-bar:nth-child(2) { animation-delay: 0.1s; }
+        .voice-bar:nth-child(3) { animation-delay: 0.2s; }
+        .voice-bar:nth-child(4) { animation-delay: 0.3s; }
+        .voice-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes voiceAnimation {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+
+        .thinking {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            color: #00ff88;
+            margin-top: 10px;
+        }
+
+        .thinking-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: thinking 1.4s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes thinking {
+            0%, 60%, 100% { transform: scale(1); opacity: 0.5; }
+            30% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .toggle-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">JARVIS</div>
+            <div class="status" id="status">AI Assistant Ready</div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message ai-message">
+                    Hello! I'm JARVIS, your AI personal assistant. I can help you with various tasks, answer questions, and even respond to voice commands. How can I assist you today?
+                </div>
+            </div>
+
+            <div class="thinking" id="thinking">
+                <span>JARVIS is thinking</span>
+                <div class="thinking-dot"></div>
+                <div class="thinking-dot"></div>
+                <div class="thinking-dot"></div>
+            </div>
+
+            <div class="input-section">
+                <input type="text" class="input-field" id="messageInput" placeholder="Type your message or use voice commands...">
+                <div class="controls">
+                    <div class="toggle-btn" id="voiceToggle">🎤 Voice</div>
+                    <div class="toggle-btn" id="ttsToggle">🔊 TTS</div>
+                    <div class="toggle-btn" id="wakeWordToggle">👂 Wake Word</div>
+                </div>
+                <button class="btn" id="sendBtn">➤</button>
+                <button class="btn" id="voiceBtn">🎤</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="voice-visualizer" id="voiceVisualizer">
+        <div class="voice-bar"></div>
+        <div class="voice-bar"></div>
+        <div class="voice-bar"></div>
+        <div class="voice-bar"></div>
+        <div class="voice-bar"></div>
+    </div>
+
+    <script>
+        class JarvisAssistant {
+            constructor() {
+                this.isRecording = false;
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                this.voiceEnabled = true;
+                this.ttsEnabled = true;
+                this.conversationHistory = [];
+                this.isThinking = false;
+                this.wakeWordEnabled = false;
+                this.currentVoice = null;
+                
+                this.initializeElements();
+                this.initializeSpeechRecognition();
+                this.initializeEventListeners();
+                this.initializeVoices();
+                this.createParticles();
+                this.updateStatus('Ready for commands');
+                this.startWakeWordListening();
+            }
+
+            initializeElements() {
+                this.messagesContainer = document.getElementById('messages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.voiceBtn = document.getElementById('voiceBtn');
+                this.voiceToggle = document.getElementById('voiceToggle');
+                this.ttsToggle = document.getElementById('ttsToggle');
+                this.wakeWordToggle = document.getElementById('wakeWordToggle');
+                this.status = document.getElementById('status');
+                this.thinking = document.getElementById('thinking');
+                this.voiceVisualizer = document.getElementById('voiceVisualizer');
+            }
+
+            initializeVoices() {
+                // Initialize TTS voices
+                if (this.synthesis) {
+                    this.synthesis.onvoiceschanged = () => {
+                        const voices = this.synthesis.getVoices();
+                        this.currentVoice = voices.find(voice => 
+                            voice.name.includes('Google') || 
+                            voice.name.includes('Microsoft David') ||
+                            voice.name.includes('Alex') ||
+                            voice.lang.startsWith('en')
+                        ) || voices[0];
+                    };
+                }
+            }
+
+            startWakeWordListening() {
+                if (!this.voiceEnabled || !this.recognition) return;
+
+                // Simple wake word detection
+                if (this.wakeWordEnabled && 'webkitSpeechRecognition' in window) {
+                    const wakeWordRecognition = new webkitSpeechRecognition();
+                    wakeWordRecognition.continuous = true;
+                    wakeWordRecognition.interimResults = true;
+                    wakeWordRecognition.lang = 'en-US';
+
+                    wakeWordRecognition.onresult = (event) => {
+                        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                        if (transcript.includes('hey jarvis') || transcript.includes('jarvis')) {
+                            this.handleWakeWord();
+                        }
+                    };
+
+                    wakeWordRecognition.onerror = () => {
+                        // Silently restart wake word listening
+                        setTimeout(() => {
+                            if (this.wakeWordEnabled) {
+                                wakeWordRecognition.start();
+                            }
+                        }, 1000);
+                    };
+
+                    if (this.wakeWordEnabled) {
+                        wakeWordRecognition.start();
+                    }
+                }
+            }
+
+            handleWakeWord() {
+                this.updateStatus('Wake word detected!');
+                this.speak('Yes, how can I help you?');
+                setTimeout(() => {
+                    this.toggleVoiceRecording();
+                }, 1000);
+            }
+
+            clearChat() {
+                this.messagesContainer.innerHTML = `
+                    <div class="message ai-message">
+                        Chat cleared! Hello again! I'm JARVIS, your AI personal assistant. How can I assist you today?
+                    </div>
+                `;
+                this.conversationHistory = [];
+            }
+
+            initializeSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.lang = 'en-US';
+
+                    this.recognition.onstart = () => {
+                        this.isRecording = true;
+                        this.voiceBtn.classList.add('recording');
+                        this.voiceVisualizer.style.display = 'flex';
+                        this.updateStatus('Listening...');
+                    };
+
+                    this.recognition.onend = () => {
+                        this.isRecording = false;
+                        this.voiceBtn.classList.remove('recording');
+                        this.voiceVisualizer.style.display = 'none';
+                        this.updateStatus('Processing...');
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.messageInput.value = transcript;
+                        this.sendMessage();
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.updateStatus('Voice recognition error');
+                        this.isRecording = false;
+                        this.voiceBtn.classList.remove('recording');
+                        this.voiceVisualizer.style.display = 'none';
+                    };
+                }
+            }
+
+            initializeEventListeners() {
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+
+                this.voiceBtn.addEventListener('click', () => this.toggleVoiceRecording());
+                this.voiceToggle.addEventListener('click', () => this.toggleVoice());
+                this.ttsToggle.addEventListener('click', () => this.toggleTTS());
+                this.wakeWordToggle.addEventListener('click', () => this.toggleWakeWord());
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key) {
+                            case 'k':
+                                e.preventDefault();
+                                this.clearChat();
+                                break;
+                            case 'm':
+                                e.preventDefault();
+                                this.toggleVoiceRecording();
+                                break;
+                            case 'l':
+                                e.preventDefault();
+                                this.messageInput.focus();
+                                break;
+                        }
+                    }
+                });
+
+                // Update toggle button states
+                this.updateToggleStates();
+            }
+
+            toggleVoice() {
+                this.voiceEnabled = !this.voiceEnabled;
+                this.updateToggleStates();
+                this.updateStatus(this.voiceEnabled ? 'Voice enabled' : 'Voice disabled');
+            }
+
+            toggleTTS() {
+                this.ttsEnabled = !this.ttsEnabled;
+                this.updateToggleStates();
+                this.updateStatus(this.ttsEnabled ? 'Text-to-speech enabled' : 'Text-to-speech disabled');
+            }
+
+            toggleWakeWord() {
+                this.wakeWordEnabled = !this.wakeWordEnabled;
+                this.updateToggleStates();
+                this.updateStatus(this.wakeWordEnabled ? 'Wake word listening enabled' : 'Wake word listening disabled');
+                
+                if (this.wakeWordEnabled) {
+                    this.startWakeWordListening();
+                }
+            }
+
+            updateToggleStates() {
+                this.voiceToggle.classList.toggle('active', this.voiceEnabled);
+                this.ttsToggle.classList.toggle('active', this.ttsEnabled);
+                this.wakeWordToggle.classList.toggle('active', this.wakeWordEnabled);
+            }
+
+            toggleVoiceRecording() {
+                if (!this.voiceEnabled || !this.recognition) {
+                    this.updateStatus('Voice recognition not available');
+                    return;
+                }
+
+                if (this.isRecording) {
+                    this.recognition.stop();
+                } else {
+                    this.recognition.start();
+                }
+            }
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message || this.isThinking) return;
+
+                this.addMessage(message, 'user');
+                this.messageInput.value = '';
+                this.showThinking();
+                this.isThinking = true;
+
+                try {
+                    const response = await this.getAIResponse(message);
+                    this.hideThinking();
+                    this.isThinking = false;
+                    this.addMessage(response, 'ai');
+                    
+                    if (this.ttsEnabled) {
+                        this.speak(response);
+                    }
+                    
+                    this.updateStatus('Ready for next command');
+                } catch (error) {
+                    this.hideThinking();
+                    this.isThinking = false;
+                    this.addMessage('Sorry, I encountered an error processing your request. Please try again.', 'ai');
+                    this.updateStatus('Error occurred - Ready for retry');
+                }
+            }
+
+            addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.textContent = text;
+                this.messagesContainer.appendChild(messageDiv);
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+
+            async getAIResponse(message) {
+                // Add message to conversation history
+                this.conversationHistory.push({ role: 'user', content: message });
+                
+                try {
+                    // Check for built-in commands first
+                    const builtInResponse = this.handleBuiltInCommands(message);
+                    if (builtInResponse) {
+                        this.conversationHistory.push({ role: 'assistant', content: builtInResponse });
+                        return builtInResponse;
+                    }
+
+                    // Call AI API
+                    const response = await this.callAIAPI(message);
+                    this.conversationHistory.push({ role: 'assistant', content: response });
+                    
+                    // Keep conversation history manageable (last 20 messages)
+                    if (this.conversationHistory.length > 20) {
+                        this.conversationHistory = this.conversationHistory.slice(-20);
+                    }
+                    
+                    return response;
+                    
+                } catch (error) {
+                    console.error('AI API Error:', error);
+                    const fallbackResponse = this.getFallbackResponse(message);
+                    this.conversationHistory.push({ role: 'assistant', content: fallbackResponse });
+                    return fallbackResponse;
+                }
+            }
+
+            async callAIAPI(message) {
+                // For demo purposes, we'll simulate different AI service calls
+                // In production, replace with your actual API endpoints
+                
+                const API_ENDPOINTS = {
+                    openai: '/api/openai/chat',
+                    anthropic: '/api/anthropic/chat',
+                    local: '/api/local/chat'
+                };
+
+                const requestBody = {
+                    message: message,
+                    history: this.conversationHistory.slice(-10), // Last 10 messages for context
+                    temperature: 0.7,
+                    max_tokens: 500
+                };
+
+                // Try OpenAI first (most common integration)
+                try {
+                    const response = await fetch(API_ENDPOINTS.openai, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.getAPIKey()}`
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    return data.response || data.choices?.[0]?.message?.content || 'Sorry, I received an empty response.';
+                    
+                } catch (error) {
+                    console.warn('Primary AI API failed, trying fallback:', error);
+                    
+                    // Fallback to local processing or alternative service
+                    return await this.getLocalAIResponse(message);
+                }
+            }
+
+            async getLocalAIResponse(message) {
+                // Simulate local AI processing or offline capabilities
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const responses = this.getIntelligentResponses(message);
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            getIntelligentResponses(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Time-based responses
+                if (lowerMessage.includes('time')) {
+                    return [`The current time is ${new Date().toLocaleTimeString()}.`];
+                }
+                
+                // Date-based responses
+                if (lowerMessage.includes('date') || lowerMessage.includes('today')) {
+                    const today = new Date();
+                    return [`Today is ${today.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}.`];
+                }
+                
+                // Weather (would integrate with weather API in production)
+                if (lowerMessage.includes('weather')) {
+                    return [
+                        'I would need access to weather APIs to provide current conditions. In a full implementation, I would integrate with services like OpenWeatherMap.',
+                        'Weather integration is available in the full version. I can provide forecasts, current conditions, and weather alerts.'
+                    ];
+                }
+                
+                // Greetings
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return [
+                        'Hello! I\'m JARVIS, your AI assistant. How can I help you today?',
+                        'Hi there! Ready to assist you with any questions or tasks.',
+                        'Hey! What can I do for you today?'
+                    ];
+                }
+                
+                // Capabilities
+                if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
+                    return [
+                        'I can help you with various tasks: answering questions, providing information, helping with calculations, offering suggestions, and much more. I also support voice commands and can speak my responses aloud.',
+                        'My capabilities include: conversational AI, voice recognition, text-to-speech, information retrieval, task assistance, and intelligent responses. What would you like to try?'
+                    ];
+                }
+                
+                // Math and calculations
+                if (lowerMessage.includes('calculate') || lowerMessage.includes('math') || /\d+[\+\-\*\/]\d+/.test(lowerMessage)) {
+                    return this.handleMathCalculation(message);
+                }
+                
+                // Default intelligent responses
+                return [
+                    `I understand you're asking about "${message}". In a full AI implementation, I would process this through advanced language models to provide detailed, contextual responses.`,
+                    `That's an interesting question about "${message}". With full AI integration, I could provide comprehensive analysis and insights on this topic.`,
+                    `I'd be happy to help with "${message}". The complete version would leverage GPT-4 or similar models for detailed, intelligent responses.`
+                ];
+            }
+
+            handleMathCalculation(message) {
+                try {
+                    // Simple math evaluation (be careful with eval in production)
+                    const mathExpression = message.match(/[\d\+\-\*\/\.\(\)\s]+/g)?.[0];
+                    if (mathExpression) {
+                        // Basic safety check
+                        if (/^[\d\+\-\*\/\.\(\)\s]+$/.test(mathExpression)) {
+                            const result = Function(`"use strict"; return (${mathExpression})`)();
+                            return [`The result is ${result}.`];
+                        }
+                    }
+                } catch (error) {
+                    console.error('Math calculation error:', error);
+                }
+                return ['I can help with basic math calculations. Try something like "calculate 25 * 4" or "what is 100 / 5"?'];
+            }
+
+            handleBuiltInCommands(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // System commands
+                if (lowerMessage.includes('clear chat') || lowerMessage.includes('clear history')) {
+                    this.clearChat();
+                    return 'Chat history cleared!';
+                }
+                
+                if (lowerMessage.includes('toggle voice') || lowerMessage.includes('voice off') || lowerMessage.includes('voice on')) {
+                    this.toggleVoice();
+                    return `Voice recognition ${this.voiceEnabled ? 'enabled' : 'disabled'}.`;
+                }
+                
+                if (lowerMessage.includes('toggle speech') || lowerMessage.includes('speech off') || lowerMessage.includes('speech on')) {
+                    this.toggleTTS();
+                    return `Text-to-speech ${this.ttsEnabled ? 'enabled' : 'disabled'}.`;
+                }
+                
+                return null; // No built-in command matched
+            }
+
+            getAPIKey() {
+                // In production, never expose API keys in frontend code
+                // This should be handled by your backend API
+                return 'your-api-key-should-be-on-backend';
+            }
+
+            getFallbackResponse(message) {
+                return `I'm currently running in offline mode. For full AI capabilities, please ensure the backend API is running and properly configured. Your message: "${message}"`;
+            }
+
+            speak(text) {
+                if (!this.ttsEnabled || !this.synthesis) return;
+
+                // Cancel any ongoing speech
+                this.synthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.volume = 0.8;
+                
+                if (this.currentVoice) {
+                    utterance.voice = this.currentVoice;
+                }
+
+                utterance.onstart = () => {
+                    this.updateStatus('Speaking...');
+                };
+
+                utterance.onend = () => {
+                    this.updateStatus('Ready for commands');
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    this.updateStatus('Speech error - Ready for commands');
+                };
+
+                this.synthesis.speak(utterance);
+            }
+
+            showThinking() {
+                this.thinking.style.display = 'flex';
+            }
+
+            hideThinking() {
+                this.thinking.style.display = 'none';
+            }
+
+            updateStatus(status) {
+                this.status.textContent = status;
+                setTimeout(() => {
+                    if (this.status.textContent === status) {
+                        this.status.textContent = 'AI Assistant Ready';
+                    }
+                }, 3000);
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 50;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 8 + 's';
+                    particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+        }
+
+        // Initialize JARVIS when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new JarvisAssistant();
+        });
+    </script>
+</body>
+</html>
