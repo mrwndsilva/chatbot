@@ -106,5 +106,5 @@ MIT License. Use freely and modify for your own assistant.
 
 👋 Credits
 
-Built by [Your Name]. Inspired by J.A.R.V.I.S. from Iron Man.
+Built by [Merwin Dsilva]. Inspired by J.A.R.V.I.S. from Iron Man.
 
