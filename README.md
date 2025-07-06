@@ -3,14 +3,14 @@ ChatBot AI Assistant is an intelligent conversational agent built to simulate hu
 
 🔥 Features
 
-🧠 AI-powered chat via OpenAI GPT-4o or local fallback
-🎧 Voice recognition using browser APIs
-🔊 Text-to-Speech responses (TTS)
-🗣️ Wake word activation (e.g., "Hey Jarvis")
-💻 Stylish and responsive frontend UI (jarvis.html)
-🌐 Express backend with rate limiting, security (Helmet), and API endpoints
-⚙️ Easily extensible for Claude, local LLMs, or other APIs
-📁 Project Structure
+ AI-powered chat via OpenAI GPT-4o or local fallback
+ Voice recognition using browser APIs
+ Text-to-Speech responses (TTS)
+ Wake word activation (e.g., "Hey Jarvis")
+ Stylish and responsive frontend UI (jarvis.html)
+ Express backend with rate limiting, security (Helmet), and API endpoints
+ Easily extensible for Claude, local LLMs, or other APIs
+ Project Structure
 
 JARVIS/
 ├── jarvis.html            # Frontend UI with JS class and visual effects
@@ -19,13 +19,13 @@ JARVIS/
 ├── launch.json            # VS Code Chrome debugger config
 └── .env                   # Environment variables (not included by default)
 
-💠 Setup Instructions
+x Setup Instructions
 
-1. 📦 Install Dependencies
+1. Install Dependencies
 
 npm install
 
-2. 🔐 Configure Environment Variables
+2.  Configure Environment Variables
 
 Create a .env file in the root directory:
 
@@ -35,7 +35,7 @@ PORT=3001
 
 You can also add ANTHROPIC_API_KEY for Claude support (optional).
 
-3. 🚀 Run the Server
+3.  Run the Server
 
 node server.js
 
@@ -57,7 +57,7 @@ Open jarvis.html in Chrome directly, or use VS Code with launch.json to auto-ope
 
 You may serve the HTML via a static file server if needed (e.g. Live Server in VS Code).
 
-🔄 Available API Endpoints
+ Available API Endpoints
 
 POST /api/openai/chat – Send messages to OpenAI with context.
 
@@ -84,7 +84,7 @@ Response:
   "model": "gpt-4o-mini"
 }
 
-🔐 Security & Rate Limiting
+! Security & Rate Limiting
 
 Helmet for HTTP headers
 
